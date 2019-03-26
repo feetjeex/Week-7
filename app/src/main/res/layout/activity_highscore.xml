@@ -68,7 +68,7 @@
         android:textSize="18sp"
         app:layout_constraintBottom_toTopOf="@+id/gridLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.304"
+        app:layout_constraintHorizontal_bias="0.059"
         app:layout_constraintStart_toEndOf="@+id/highscorePoints"
         app:layout_constraintTop_toBottomOf="@+id/highscoreTitle"
         app:layout_constraintVertical_bias="0.549" />

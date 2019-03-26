@@ -1,6 +1,7 @@
 package com.example.trivia;
 
 import android.content.Context;
+import android.text.Html;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -151,6 +152,7 @@ public class TriviaRequest implements Response.Listener<JSONObject>, Response.Er
 
                 // Fills in all the fields of the i'th QuestionItem object
                 QuestionItem questionItem = new QuestionItem();
+                question = Html.fromHtml(question, Html.FROM_HTML_MODE_LEGACY).toString();
                 questionItem.setCategory(category);
                 questionItem.setType(type);
                 questionItem.setDifficulty(difficulty);
