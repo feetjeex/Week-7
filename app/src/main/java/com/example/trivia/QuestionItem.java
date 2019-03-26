@@ -3,6 +3,8 @@ package com.example.trivia;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+
+// Implements the QuestionItem Object
 public class QuestionItem implements Serializable {
 
     String category, type, difficulty, question, correct_answer;

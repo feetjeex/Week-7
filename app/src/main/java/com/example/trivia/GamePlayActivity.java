@@ -17,8 +17,6 @@ import java.util.List;
 
 public class GamePlayActivity extends AppCompatActivity implements TriviaRequest.Callback {
 
-    private static final String TAG = "MainActivity";
-
     ArrayList<QuestionItem> questionItems = new ArrayList<>();
     ArrayList<QuestionItem> questions = new ArrayList<>();
     TextView gameplayDifficulty;
@@ -33,7 +31,7 @@ public class GamePlayActivity extends AppCompatActivity implements TriviaRequest
     Button confirmation;
     ArrayList<String> shufflerOutput;
     int counter = 0;
-    int score = 0;
+    int score;
     int buttonChosen;
     String answerChosen;
     String correctAnswer;
@@ -45,10 +43,16 @@ public class GamePlayActivity extends AppCompatActivity implements TriviaRequest
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gameplay);
 
+        // OnCreate, sets the score to zero and instantiates a new TriviaRequest
         score = 0;
-        TriviaRequest x = new TriviaRequest(this);
+        Intent intent = getIntent();
+        String amounts = intent.getStringExtra("questionAmount");
+        String difficulties = intent.getStringExtra("questionDifficulty");
+        String types = intent.getStringExtra("questionType");
+        TriviaRequest x = new TriviaRequest(this, amounts, difficulties, types);
         x.getTriviaRequest(this);
-        
+
+        // Find the views of all the UI/XML elements
         gameplayDifficulty = findViewById(R.id.gameplayDifficulty);
         gameplayType = findViewById(R.id.gameplayType);
         gameplayCategory = findViewById(R.id.gameplayCategory);
@@ -65,17 +69,21 @@ public class GamePlayActivity extends AppCompatActivity implements TriviaRequest
         confirmation = findViewById(R.id.gameplayConfirm);
     }
 
+    // Calls the Trivia Request downloader
     @Override
     public void gotTriviaRequest(ArrayList<QuestionItem> questionItems) {
 
         questions = questionItems;
-        Log.d(TAG, "Amount of questions: " + questions.size());
+
+        // Calls the method 'uiSetter' using the first question as a parameter
         uiSetter(0);
         gameplayScore.setText(String.valueOf(0));
     }
 
+    // Method to check the validity of the user input 'answerChosen'
     public int answerChecker(String correctAnswer, String answerChosen) {
 
+        // Increases the score counter on a valid user answer
         if (correctAnswer.equals(answerChosen)) {
             score++;
         }
@@ -83,6 +91,7 @@ public class GamePlayActivity extends AppCompatActivity implements TriviaRequest
         return score;
     }
 
+    // Method which displays the current question on the UI using counter to keep track of the current question
     public void uiSetter(int counter) {
 
         String difficulty;
@@ -90,7 +99,8 @@ public class GamePlayActivity extends AppCompatActivity implements TriviaRequest
         String category;
         String question;
 
-
+        // Gets the current QuestionItem object using counter
+        // Gets all the relevant fields from the current QuestionItem and shuffles the position of the answers
         QuestionItem items = (QuestionItem) questions.get(counter);
         difficulty = items.getDifficulty();
         type = items.getType();
@@ -101,6 +111,7 @@ public class GamePlayActivity extends AppCompatActivity implements TriviaRequest
         shufflerInput.add(correctAnswer);
         Collections.shuffle(shufflerInput);
 
+        // If the question is a True/False question
         if (shufflerInput.size() == 2) {
             gameplayDifficulty.setText(difficulty);
             gameplayType.setText(type);
@@ -112,6 +123,7 @@ public class GamePlayActivity extends AppCompatActivity implements TriviaRequest
             button4.setText("");
         }
 
+        // If the question is a Multiple Choice question
         else {
             gameplayDifficulty.setText(difficulty);
             gameplayType.setText(type);
@@ -124,29 +136,43 @@ public class GamePlayActivity extends AppCompatActivity implements TriviaRequest
         }
     }
 
+    // Method which is called after user presses 'confirm' button
     public void confirmation(View view) {
 
+        // Counter increases by one on each press
         counter++;
-        if (counter == questions.size()) {
+
+        // Checks if the current question is the final question
+        if (counter >= questions.size()) {
+
+            // If the current question is the final question, directs the user to the next activity using Intent
             Intent intent = new Intent(this, SubmitActivity.class);
             intent.putExtra("score", score);
             startActivity(intent);
         }
 
-        button1.setBackgroundColor(Color.parseColor("#ffffff"));
-        button2.setBackgroundColor(Color.parseColor("#ffffff"));
-        button3.setBackgroundColor(Color.parseColor("#ffffff"));
-        button4.setBackgroundColor(Color.parseColor("#ffffff"));
+        // If the current question is not the final question
+        else {
 
-        answerChosen = shufflerInput.get(buttonChosen);
-        answerChecker(correctAnswer, answerChosen);
-        Log.d(TAG, "answerchosen: " + answerChosen);
-        Log.d(TAG, "correctanswer: " + correctAnswer);
+            // Resets the background color of each button to white
+            button1.setBackgroundColor(Color.parseColor("#ffffff"));
+            button2.setBackgroundColor(Color.parseColor("#ffffff"));
+            button3.setBackgroundColor(Color.parseColor("#ffffff"));
+            button4.setBackgroundColor(Color.parseColor("#ffffff"));
 
-        gameplayScore.setText(String.valueOf(score));
-        uiSetter(counter);
+            // Calling the method 'answerChecker' using the user input 'answerChosen'
+            answerChosen = shufflerInput.get(buttonChosen);
+            answerChecker(correctAnswer, answerChosen);
+
+            // Sets the score counter and calls 'uiSetter' to display the next question on the UI
+            gameplayScore.setText(String.valueOf(score));
+            uiSetter(counter);
+        }
     }
 
+    // Sets the color of the background of the button that is pressed to grey
+    // Sets all other buttons background to white
+    // sets 'buttonChosen' to the proper value
     public void button1(View view) {
         button1.setBackgroundColor(Color.parseColor("#808080"));
         button2.setBackgroundColor(Color.parseColor("#ffffff"));
@@ -179,6 +205,7 @@ public class GamePlayActivity extends AppCompatActivity implements TriviaRequest
         buttonChosen = 3;
     }
 
+    // Informs the user that an error occurred while downloading questions
     @Override
     public void gotTriviaRequestError(String message) {
         Toast.makeText(this, "No internet connection.", Toast.LENGTH_LONG).show();
